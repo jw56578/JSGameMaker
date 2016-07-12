@@ -31,10 +31,6 @@ var renderToLocation = function(){
 }
 var requestAnimationFrameID;
 function refresh(screen){
-  //go though all registered monsters and call their move function 
-  //this will move things way too fast
-  //need to record time of last move and slow down Date.now()
-  //only move things every 200 ms or whatever that makes sense
   var l = objectsOnScreen.length;
   while(l--){
     objectsOnScreen[l].onAnimationFrame(screen);

@@ -2,13 +2,14 @@ import React, {Component,PropTypes} from 'react';
 import createScreen from '../services/game/screen';
 import getMonster from '../services/game/monster';
 import {refresh} from '../services/game/render';
+import {getCssStyle} from '../services/game/dom-renderer';
 
 class Screen extends Component
 {
   constructor(props, context) {
         super(props, context);
         var screen = createScreen(20,20,30,30);
-        this.state = {screen:screen,grid :screen.grid};
+        this.state = {screen:screen};
         this.handleMouseOver = this.handleMouseOver.bind(this);
         this.start = this.start.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -16,16 +17,16 @@ class Screen extends Component
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.refresh = this.refresh.bind(this);
   }
- handleMouseOver(s,e){
+ handleMouseOver(layerIndex,cell,event){
     if(this.state.mouseIsDown){
-      var cell = this.state.grid[s.id];
-      this.state.grid[s.id] =Object.assign({},cell, {backgroundColor : cell.isEdge ? 'red' :  'black',isOccupied:true});
-      this.setState({grid:this.state.grid});
+      //thsi logic needs to go somewhere else not havving to do with HTML
+      this.state.screen.layers[layerIndex][cell.id] =Object.assign({},cell, {isOccupied:true});
+      this.setState({screen:this.state.screen});
     }
   }
   start(){
     //make the first div that isn't black, some other color
-    var l = this.state.grid.length,activePosition = null; 
+/*    var l = this.state.grid.length,activePosition = null; 
     while(l--){
       var g = this.state.grid[l];
       if(!g.isOccupied){
@@ -34,10 +35,11 @@ class Screen extends Component
         g.isOccupied = true;
         break;
       }
-    }
-    var m1 = getMonster(this.state.screen);
-    var m2 = getMonster(this.state.screen);
-    var m3 = getMonster(this.state.screen);
+    }*/
+    var layer = this.state.screen.layers[0];
+    var m1 = getMonster(layer);
+    var m2 = getMonster(layer);
+    var m3 = getMonster(layer);
     refresh(this.state.screen);
     
     this.setState({activePosition:activePosition,grid:this.state.grid});
@@ -69,8 +71,9 @@ class Screen extends Component
   }
   render(){
     var self = this;
-    var divs = this.state.grid.map(function(s){
-      return <div key={s.id} onMouseOver={self.handleMouseOver.bind(null,s)} style={s}> </div>
+    //change this hard coding later
+    var divs = this.state.screen.layers[0].map(function(s){
+      return <div key={s.id} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s)} style={getCssStyle(s)}> </div>
     });
 
     return (<div>
