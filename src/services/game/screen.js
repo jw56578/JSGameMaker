@@ -21,8 +21,26 @@ function changeIndex(sourceIndex, destinationIndex,layer,obj){
         if(!currentLayer)
             continue;
         //check for collision hard coding no collision allowed for right now
-        if(currentLayer[destinationIndex]){
-            return;
+        //how is the collision handler going to decide that the thing can move into the destination or not
+        //do you get the collision handler from the source or target
+
+        /*so i'm like the thing moving and im like okay this thing senses that something is already where i want to go
+        so then i have to somehow handle what i collided into
+        the thing i collided into has to handle something
+        then i have to somehow know if i can go to wherever i wanted to go or not
+         */
+        var destination = currentLayer[destinationIndex];
+        if(destination){
+            var sourceHandler = obj.getCollisionHandler(destination);
+            var destinationHandler = destination.getCollisionHandler(obj);
+
+            //EH?
+            if(destinationHandler.isNeutral()){
+                continue;
+            }else{
+                return;
+            }
+            
         }
     }
       //this is based  on whether the thing can go up or down through the screen

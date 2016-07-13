@@ -1,6 +1,5 @@
 var BaseObject = {
-  init:function(){
-      
-  }
+  
   
 };
+export default BaseObject;

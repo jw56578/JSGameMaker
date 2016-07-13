@@ -55,3 +55,14 @@ Layer Collision
 4. then it has to determine whether the thing on the lower layer can be overtaken or not
 5. what is going to determien whether a thing can be overriden by upper layers.
 6. the screen should probably be responsbile for doing this work, or the layer, not the object (monster)
+
+
+Collision
+1.where the hell should the code be to handle when 2 things collide
+2. should each object handle it itself
+---the Hero object would have to handle what happens when it runs into every single other type of thing
+---well something is going to have to handle every scenario, just create another collision handler thing per object and have the object return it through getCollisionHandler
+3.so every object needs to have a function getCollisionHandler ? yup
+think how complicated this can get, what if a monster encounters a player and the collision causes the player to die and disappear back to the beginning. and the monster needs to move 
+into the position where the player was, how do you handle this
+

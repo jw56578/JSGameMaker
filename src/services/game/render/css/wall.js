@@ -1,4 +1,6 @@
-var Wall = { };
+
+import {createWall as cm}  from '../../objects/wall';
+var Wall =  Object.create(cm());
 
 Wall.getStyle = function(){
   return {backgroundColor:'black'};
