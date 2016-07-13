@@ -1,14 +1,40 @@
 
 var Screen = {
-    init:initialize
+    init:initialize,
+    addToRandomLayerLocation:addToRandomLayerLocation
 }
-var createScreen = function(rows, columns,cellHeight,cellWidth){
+/**
+ * Obviously want different random logic, keeping simple for now
+ */
+function addToRandomLayerLocation(obj,layerIndex){
+    var layer = this.layers[layerIndex],l = layer.length;
+    if(!this.layerObjects[layerIndex]){
+        this.layerObjects[layerIndex] = [];
+    }
+    var obj = this.layerObjects[layerIndex];
+    while(l--){
+        var g = obj[l];
+        if(!g){
+            obj[l] = obj;
+            return;
+        }
+
+  /*      if(!g.isOccupied){
+            obj.init(l); // what the hell else do you do here, rename init, do something else totally
+            g.isOccupied = true;
+            obj.setVisualRepresentation(g); // what the hell else do you do here, things can't be resposible for setting css styles
+            break;
+        }*/
+    }
+    objectsOnScreen.push(obj);
+}
+var createScreen = function(layers,rows, columns,cellHeight,cellWidth){
     var screen = Object.create(Screen);
-    screen.init(rows, columns,cellHeight,cellWidth);
+    screen.init(layers,rows, columns,cellHeight,cellWidth);
     return screen;
 }
 //create layer of things that don't move
-function createLayerOne(rows, columns,cellHeight,cellWidth){
+function createLayer(rows, columns,cellHeight,cellWidth){
     var grid = [];
     var topOffset = 0;
     var leftOffset = 0;
@@ -35,13 +61,12 @@ function createLayerOne(rows, columns,cellHeight,cellWidth){
     }
     return grid;
 }
-function initialize(rows, columns,cellHeight,cellWidth){
-    //should there be layers or 2 seperate data structures for map items and the things that are part of the map
-    //create a layer object and try this out
-    //hard code layers for now to test
-    var layers = [];
-    layers.push(createLayerOne(rows,columns,cellHeight,cellWidth));
-    this.layers = layers;
+function initialize(layers,rows, columns,cellHeight,cellWidth){
+    this.layers = [];
+    this.layerObjects =[]; // one entry for each layer which then contains an array of each object on the layer
+    while(layers --){
+        this.layers.push(createLayer(rows,columns,cellHeight,cellWidth));
+    }
     this.columns = columns;
     this.rows = rows;
 }

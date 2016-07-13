@@ -43,10 +43,9 @@ Monster.setVisualRepresentation=function(gridCell){
    gridCell.backgroundColor = 'purple';
 }
 
-var getMonster = function(layer){
+var createMonster = function(layer){
   var monster = Object.create(Monster);
-  renderToRandomLocation(monster,layer); //this might be pointless
   return monster;
 }
 
-export default getMonster;
+export default createMonster;

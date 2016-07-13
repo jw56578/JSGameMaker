@@ -1,14 +1,14 @@
 import React, {Component,PropTypes} from 'react';
 import createScreen from '../services/game/screen';
-import getMonster from '../services/game/monster';
+import createMonster from '../services/game/monster';
 import {refresh} from '../services/game/render';
-import {getCssStyle} from '../services/game/dom-renderer';
+import {getCssStyleForCell} from '../services/game/dom-renderer';
 
 class Screen extends Component
 {
   constructor(props, context) {
         super(props, context);
-        var screen = createScreen(20,20,30,30);
+        var screen = createScreen(2,20,20,30,30);
         this.state = {screen:screen};
         this.handleMouseOver = this.handleMouseOver.bind(this);
         this.start = this.start.bind(this);
@@ -36,13 +36,16 @@ class Screen extends Component
         break;
       }
     }*/
-    var layer = this.state.screen.layers[0];
-    var m1 = getMonster(layer);
-    var m2 = getMonster(layer);
-    var m3 = getMonster(layer);
+
+    var m1 = createMonster();
+    var m2 = createMonster();
+    var m3 = createMonster();
+    this.state.screen.addToRandomLayerLocation(m1,1);
+    this.state.screen.addToRandomLayerLocation(m2,1);
+    this.state.screen.addToRandomLayerLocation(m3,1);
     refresh(this.state.screen);
     
-    this.setState({activePosition:activePosition,grid:this.state.grid});
+   // this.setState({activePosition:activePosition,grid:this.state.grid});
   }
   handleKeyDown(e){
     var code = e.code;
@@ -71,9 +74,11 @@ class Screen extends Component
   }
   render(){
     var self = this;
+    var layerObjects = self.state.screen.layerObjects[1];
     //change this hard coding later
-    var divs = this.state.screen.layers[0].map(function(s){
-      return <div key={s.id} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s)} style={getCssStyle(s)}> </div>
+    var divs = this.state.screen.layers[0].map(function(s,i,arry){
+     var lo = layerObjects ? layerObjects[i] : null;
+      return <div key={s.id} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s)} style={getCssStyleForCell(s,lo)}> </div>
     });
 
     return (<div>

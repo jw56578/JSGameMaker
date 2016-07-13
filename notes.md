@@ -15,6 +15,23 @@ how would you know to turn this cell back to green. you would have to have some 
 
 okay so things do need to be in layers but how do you decide what layer to add a things
 
+make layers
+1. do you predefine that here will be a certain number of layers
+2. how else would it matter
+3. i think each game should define how many layers there are
 
 
-need to have a map object that represents things to go on map but doesn't have anything to do with CSS or html
+make a thing on the layer
+1. make a map object like a monster
+2. then what do you do with it, add it to which layer?
+3. you make the thing and then add to specific layer
+
+what makes the UI change to reflect the things on the screen
+1. the react ui code has to do somemthing specific per layer and per layerObject
+2. the actual layer is suppose to define how the grid is setup, not how things look in each grid cell
+3. another thing must decide what css to use based on what thing the layyer Object is
+
+refreshing- animation
+1. the screen doesn't need to know about timers or requestanimationframe
+2. the UI/react can do this and just call a function on the screen to "refresh" everything
+3. the screen refresh will then cycle through layers and objects to call refresh on those things
