@@ -1,7 +1,27 @@
 
 var Screen = {
     init:initialize,
-    addToRandomLayerLocation:addToRandomLayerLocation
+    addToRandomLayerLocation:addToRandomLayerLocation,
+    refresh:refresh
+}
+/**
+ * how to make this functional so that nothing is updated. Just create new objects
+ */
+function refresh(){
+    var l = this.layerObjects.length;
+    while(l--){
+        var layer = this.layerObjects[l];
+        if(!layer)
+            continue;
+        var l2 = layer.length;
+        while(l2--){
+            var obj = layer[l2];
+            if(obj && obj.refresh){
+                obj.refresh(layer,this.columns);
+            }
+        }
+    }
+    return this;
 }
 /**
  * Obviously want different random logic, keeping simple for now
@@ -11,11 +31,12 @@ function addToRandomLayerLocation(obj,layerIndex){
     if(!this.layerObjects[layerIndex]){
         this.layerObjects[layerIndex] = [];
     }
-    var obj = this.layerObjects[layerIndex];
+    var objLayer = this.layerObjects[layerIndex];
     while(l--){
-        var g = obj[l];
+        var g = objLayer[l];
         if(!g){
-            obj[l] = obj;
+            objLayer[l] = obj;
+            obj.gridIndex = l; /// not sure if this can be done a better way
             return;
         }
 

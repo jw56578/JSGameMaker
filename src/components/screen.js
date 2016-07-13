@@ -105,7 +105,8 @@ class Screen extends Component
     cancelAnimationFrame(this.raid);
   }
   refresh(){
-    this.setState({});
+    var screen = this.state.screen.refresh();
+    this.setState({screen:screen});
     this.raid = requestAnimationFrame(this.refresh); 
   }
 

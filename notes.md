@@ -32,6 +32,6 @@ what makes the UI change to reflect the things on the screen
 3. another thing must decide what css to use based on what thing the layyer Object is
 
 refreshing- animation
-1. the screen doesn't need to know about timers or requestanimationframe
+1. the screen object doesn't need to know about timers or requestanimationframe
 2. the UI/react can do this and just call a function on the screen to "refresh" everything
 3. the screen refresh will then cycle through layers and objects to call refresh on those things

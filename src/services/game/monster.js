@@ -18,25 +18,33 @@ Monster.getPaceIsOn = function(){
   return true;
 }
 //having this here indicates that all Monster types will do the same thing when moving
-Monster.onAnimationFrame=function(screen){
-  var grid = screen.grid;
+Monster.refresh=function(layer,columns){
+  var grid = layer;
   if(!this.getPaceIsOn())
     return;
   this.ticks = Date.now();
-  var moveUp = this.getDestinationIndex(screen.columns);
-  if(!grid[moveUp] || moveUp < 0)
+  var moveTo = this.getDestinationIndex(columns);
+
+  //how can you solve this, if you do recursion then it could get stuck on a direction and block everything
+  //so you have to somehow know if you can't go somewhere and choose another direction besides that direction
+  if(moveTo < 0 || moveTo > layer.length-1){
+    //this.refresh(layer,columns);
     return;
-  if( grid[moveUp].isOccupied){
+  }
+/*  if( grid[moveUp].isOccupied){
     //how do we handle collision
     //function? taking source and target
+    return;
+  }*/
+  if( grid[moveTo]){
+    //how do we handle collision
+    //function? taking source and target
+    return;
   }
-
-  grid[this.gridIndex].backgroundColor = 'white';
-  grid[moveUp].backgroundColor = 'purple';
-  //how can this be handled better
-  grid[this.gridIndex].isOccupied = false;
-  grid[moveUp].isOccupied = true;
-  this.gridIndex = moveUp;
+  grid[this.gridIndex] = null;
+  grid[moveTo] = this;
+  this.gridIndex = moveTo;
+  return this;
   
 }
 Monster.setVisualRepresentation=function(gridCell){
@@ -45,6 +53,8 @@ Monster.setVisualRepresentation=function(gridCell){
 
 var createMonster = function(layer){
   var monster = Object.create(Monster);
+  monster.steps = 0;
+  monster.ticks = -Infinity;
   return monster;
 }
 
