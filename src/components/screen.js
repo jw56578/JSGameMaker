@@ -1,6 +1,7 @@
 import React, {Component,PropTypes} from 'react';
 import createScreen from '../services/game/screen';
-import createMonster from '../services/game/monster';
+import createMonster from '../services/game/render/css/monster';
+import createWall from '../services/game/render/css/wall';
 import {refresh} from '../services/game/render';
 import {getCssStyleForCell} from '../services/game/dom-renderer';
 
@@ -17,15 +18,16 @@ class Screen extends Component
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.refresh = this.refresh.bind(this);
   }
- handleMouseOver(layerIndex,cell,event){
+ handleMouseOver(layerIndex,cell,index,event){
     if(this.state.mouseIsDown){
-      //thsi logic needs to go somewhere else not havving to do with HTML
-      this.state.screen.layers[layerIndex][cell.id] =Object.assign({},cell, {isOccupied:true});
-      this.setState({screen:this.state.screen});
+      var wall = createWall();
+      this.state.screen.addToLayerLocation(wall,0,index);
     }
   }
   start(){
     //make the first div that isn't black, some other color
+    //this was code for adding a thing to be moved with keyboard
+    //fix it to be the correct way to do it
 /*    var l = this.state.grid.length,activePosition = null; 
     while(l--){
       var g = this.state.grid[l];
@@ -74,15 +76,20 @@ class Screen extends Component
   }
   render(){
     var self = this;
-    var layerObjects = self.state.screen.layerObjects[1];
     //change this hard coding later
-    var divs = this.state.screen.layers[0].map(function(s,i,arry){
-     var lo = layerObjects ? layerObjects[i] : null;
-      return <div key={s.id} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s)} style={getCssStyleForCell(s,lo)}> </div>
+    var divLayers = this.state.screen.layers.map(function(l, li){
+      var layerObjects = self.state.screen.layerObjects[li];
+      var divs = l.map(function(s,i,arry){
+        var lo = layerObjects ? layerObjects[i] : null;
+        return <div key={li.toString() + i.toString()} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s,i)} style={getCssStyleForCell(s,lo)}> </div>
+      });
+      return divs;
     });
+    //assumption that the styles will handle themselves as placing things on top of each other 
+    divLayers = [].concat(...divLayers);
 
     return (<div>
-    <div style={{position:'relative',top:'20px'}} onKeyDown={this.handleKeyDown}>{divs}</div>
+    <div style={{position:'relative',top:'20px'}} onKeyDown={this.handleKeyDown}>{divLayers}</div>
     <button onClick={this.start}>Start</button>
     </div>)
   }

@@ -1,5 +1,4 @@
-import {MovableObject,getRandomAdjacentDestination} from './movement';
-import {renderToRandomLocation} from './render';
+import {MovableObject,getRandomAdjacentDestination} from '../movement';
 
 var Monster = Object.create(MovableObject);
 Monster.pace = 200;
@@ -47,9 +46,6 @@ Monster.refresh=function(layer,columns){
   return this;
   
 }
-Monster.setVisualRepresentation=function(gridCell){
-   gridCell.backgroundColor = 'purple';
-}
 
 var createMonster = function(layer){
   var monster = Object.create(Monster);
@@ -58,4 +54,5 @@ var createMonster = function(layer){
   return monster;
 }
 
-export default createMonster;
+export {createMonster};
+export {Monster}

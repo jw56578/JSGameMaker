@@ -1,0 +1,6 @@
+var BaseObject = {
+  init:function(){
+      
+  }
+  
+};

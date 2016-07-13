@@ -2,7 +2,13 @@
 var Screen = {
     init:initialize,
     addToRandomLayerLocation:addToRandomLayerLocation,
-    refresh:refresh
+    refresh:refresh,
+    addToLayerLocation:addToLayerLocation,
+    notifyOfKeyDown:keyDown //should there be a function for each key that could be pressed
+    //should there be a 
+}
+function keyDown(){
+
 }
 /**
  * how to make this functional so that nothing is updated. Just create new objects
@@ -17,11 +23,20 @@ function refresh(){
         while(l2--){
             var obj = layer[l2];
             if(obj && obj.refresh){
-                obj.refresh(layer,this.columns);
+                obj.refresh(layer,this.columns); //change this to send in a object of settings
             }
         }
     }
     return this;
+}
+function addToLayerLocation(obj,layerIndex,index){
+   var layer = this.layers[layerIndex],l = layer.length;
+    if(!this.layerObjects[layerIndex]){
+        this.layerObjects[layerIndex] = [];
+    }
+    var objLayer = this.layerObjects[layerIndex];
+    objLayer[index] = obj;
+    obj.gridIndex = index;
 }
 /**
  * Obviously want different random logic, keeping simple for now
@@ -39,15 +54,7 @@ function addToRandomLayerLocation(obj,layerIndex){
             obj.gridIndex = l; /// not sure if this can be done a better way
             return;
         }
-
-  /*      if(!g.isOccupied){
-            obj.init(l); // what the hell else do you do here, rename init, do something else totally
-            g.isOccupied = true;
-            obj.setVisualRepresentation(g); // what the hell else do you do here, things can't be resposible for setting css styles
-            break;
-        }*/
     }
-    objectsOnScreen.push(obj);
 }
 var createScreen = function(layers,rows, columns,cellHeight,cellWidth){
     var screen = Object.create(Screen);

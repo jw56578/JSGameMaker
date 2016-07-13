@@ -1,5 +1,5 @@
 var getCssStyleForCell = function(cell,obj){
-    return {
+    var cellStyle =  {
             //styles for the location of the cell
             position:'absolute',
             border:'1px solid black',
@@ -7,12 +7,15 @@ var getCssStyleForCell = function(cell,obj){
             left:cell.y + 'px',
             width: cell.width + 'px',
             height: cell.height + 'px',
-            //styles for what should show up in the cell based on what is there
-            backgroundColor: getObjectBackgroudColor(obj)
     }
-
+    return Object.assign({},cellStyle,obj ? obj.getStyle() : {});
 }
 function getObjectBackgroudColor(obj){
-    return obj ? 'purple' : 'white';
+    //how the hell do you handle this
+    //im not exporting the object types therefore i can't use instanceof on it to determine what to do, should 
+    if(!obj)
+        return 'white';
+    else
+        return 'purple';
 }
 export {getCssStyleForCell};
