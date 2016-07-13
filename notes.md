@@ -51,7 +51,7 @@ RENDERING
 Layer Collision
 1. how do you handle collision on 2 different layers
 2. dammit this adds so much more complication. 
-3. now the damn object has to have access to the other layers3
+3. now the damn object has to have access to the other layers
 4. then it has to determine whether the thing on the lower layer can be overtaken or not
 5. what is going to determien whether a thing can be overriden by upper layers.
 6. the screen should probably be responsbile for doing this work, or the layer, not the object (monster)

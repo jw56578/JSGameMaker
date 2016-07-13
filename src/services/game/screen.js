@@ -4,14 +4,39 @@ var Screen = {
     addToRandomLayerLocation:addToRandomLayerLocation,
     refresh:refresh,
     addToLayerLocation:addToLayerLocation,
-    notifyOfKeyDown:keyDown //should there be a function for each key that could be pressed
+    notifyOfKeyDown:keyDown, //should there be a function for each key that could be pressed
+    refreshFuncs:{
+        getNumberOfColumns:null,
+        getIndex:null, //this function depends on the object
+    }
     //should there be a 
 }
 function keyDown(){
 
 }
+function changeIndex(sourceIndex, destinationIndex,layer,obj){
+    var l = this.layerObjects.length;
+    while(l--){
+        let currentLayer = this.layerObjects[l];
+        if(!currentLayer)
+            continue;
+        //check for collision hard coding no collision allowed for right now
+        if(currentLayer[destinationIndex]){
+            return;
+        }
+    }
+      //this is based  on whether the thing can go up or down through the screen
+  //if it can, need to calcualte the index on the other side
+    if(destinationIndex < 0 || destinationIndex > layer.length-1){
+      return;
+    }
+    layer[sourceIndex] = null;
+    layer[destinationIndex] = obj;
+    obj.gridIndex = destinationIndex;
+}
 /**
  * how to make this functional so that nothing is updated. Just create new objects
+ * source of performance issue. it is looping over the entire array when most of the array is probably empty, how fix this?
  */
 function refresh(){
     var l = this.layerObjects.length;
@@ -23,7 +48,36 @@ function refresh(){
         while(l2--){
             var obj = layer[l2];
             if(obj && obj.refresh){
-                obj.refresh(layer,this.columns); //change this to send in a object of settings
+                obj.refresh({
+                            getNumberOfColumns:function(){return this.columns}.bind(this),
+                            getIndex:function(){return l2;},
+                            getTicks:function(){return Date.now();},
+                            changeIndex:function(sourceIndex, destinationIndex,obj){
+                                changeIndex.bind(this,sourceIndex,destinationIndex,layer,obj)();
+                            }.bind(this)
+                        }); 
+                    //is there a better way to do this
+                    //how is an object supposed to know if it collided with something on another layer
+                    //perhaps just send in functions for it to do its work
+
+                    //having this here indicates that all Monster types will do the same thing when moving
+                    /**what does the refresh method need
+                     * {
+                     *    functoin:getNumberOfColumns// this is needed to calculate up or down
+                     *    function:getIndex() //index on layer? should the object itself know what index it occupies
+                     *    function:checkForCollision() 
+                     *             handleCollision() 
+                     *             eh? /
+                     *             is there another layer with an object on it at this index that does not allow passing, who handles the collision event like removing hit points
+                     *             what the hell cooridnates when two things collide, i guess the screen
+                     *    functoin:getTicks() // remember, using global things is not good, don't directly use the date object
+                     *    
+                     * }
+                     * 
+                     * refresh is respnseible for deciding its layer index on each refresh given where it curently is and if its desttination is occupied
+                     * actually, that is only true for movable objects, other objects could do nothing, or do something else having nothing to do with moving
+                     * it could be based on changing a property in itself to affect the ui display, such as : state = facing left, or something
+                     */
             }
         }
     }
@@ -36,7 +90,6 @@ function addToLayerLocation(obj,layerIndex,index){
     }
     var objLayer = this.layerObjects[layerIndex];
     objLayer[index] = obj;
-    obj.gridIndex = index;
 }
 /**
  * Obviously want different random logic, keeping simple for now
@@ -51,7 +104,6 @@ function addToRandomLayerLocation(obj,layerIndex){
         var g = objLayer[l];
         if(!g){
             objLayer[l] = obj;
-            obj.gridIndex = l; /// not sure if this can be done a better way
             return;
         }
     }
