@@ -1,18 +1,26 @@
+import {refreshFuncs} from './refresh';
+import {collisionHandlers} from './collision';
 
 var Screen = {
     init:initialize,
-    addToRandomLayerLocation:addToRandomLayerLocation,
-    refresh:refresh,
-    addToLayerLocation:addToLayerLocation,
-    notifyOfKeyDown:keyDown, //should there be a function for each key that could be pressed
     refreshFuncs:{
         getNumberOfColumns:null,
         getIndex:null, //this function depends on the object
     }
     //should there be a 
 }
-function keyDown(){
+function notifyOfArrowUpPress(screen){
+    screen.keyDown = 0;
+}
+function notifyOfArrowDownPress(screen){
+    screen.keyDown = 1;
+}
 
+function notifyOfArrowLeftPress(screen){
+    screen.keyDown = 2;
+}
+function notifyOfArrowRightPress(screen){
+    screen.keyDown = 3;
 }
 function changeIndex(sourceIndex, destinationIndex,layer,obj){
     var l = this.layerObjects.length;
@@ -31,14 +39,15 @@ function changeIndex(sourceIndex, destinationIndex,layer,obj){
          */
         var destination = currentLayer[destinationIndex];
         if(destination){
-            var sourceHandler = obj.getCollisionHandler(destination);
-            var destinationHandler = destination.getCollisionHandler(obj);
-
-            //EH?
-            if(destinationHandler.isNeutral()){
-                continue;
-            }else{
-                return;
+            var sourceHandler = collisionHandlers[obj.handleCollisionIndex];
+            var destinationHandler = collisionHandlers[destination.handleCollisionIndex];
+            if(destinationHandler){
+                //EH?
+                if(destinationHandler.isNeutral()){
+                    continue;
+                }else{
+                    return;
+                }
             }
             
         }
@@ -55,69 +64,62 @@ function changeIndex(sourceIndex, destinationIndex,layer,obj){
 /**
  * how to make this functional so that nothing is updated. Just create new objects
  * source of performance issue. it is looping over the entire array when most of the array is probably empty, how fix this?
+ * 
+ * interesting bug - if you are looping and the refresh causes the thing to move its location then the loop can possiblly revisit something it already did did
+ * this will cause the thing to move its location again
+ * 
+ * perfect example of mutating state.  create an entirely new state
+ * 
  */
-function refresh(){
-    var l = this.layerObjects.length;
-    while(l--){
-        var layer = this.layerObjects[l];
-        if(!layer)
-            continue;
-        var l2 = layer.length;
-        while(l2--){
-            var obj = layer[l2];
-            if(obj && obj.refresh){
-                obj.refresh({
+function refreshScreen(screen){
+    return (function(){
+        //temp solution to deal with visited objects
+        var visited  =[];
+        var l = this.layerObjects.length;
+        while(l--){
+            let layer = this.layerObjects[l];
+            if(!layer)
+                continue;
+            let l2 = layer.length;
+            while(l2--){
+                var obj = layer[l2];
+                if(obj && visited.indexOf(obj) === -1 && refreshFuncs[obj.refreshFuncIndex]){
+                    refreshFuncs[obj.refreshFuncIndex](obj,{
+                            getKeyDown:function(){return this.keyDown}.bind(this),
                             getNumberOfColumns:function(){return this.columns}.bind(this),
                             getIndex:function(){return l2;},
                             getTicks:function(){return Date.now();},
                             changeIndex:function(sourceIndex, destinationIndex,obj){
                                 changeIndex.bind(this,sourceIndex,destinationIndex,layer,obj)();
                             }.bind(this)
-                        }); 
-                    //is there a better way to do this
-                    //how is an object supposed to know if it collided with something on another layer
-                    //perhaps just send in functions for it to do its work
-
-                    //having this here indicates that all Monster types will do the same thing when moving
-                    /**what does the refresh method need
-                     * {
-                     *    functoin:getNumberOfColumns// this is needed to calculate up or down
-                     *    function:getIndex() //index on layer? should the object itself know what index it occupies
-                     *    function:checkForCollision() 
-                     *             handleCollision() 
-                     *             eh? /
-                     *             is there another layer with an object on it at this index that does not allow passing, who handles the collision event like removing hit points
-                     *             what the hell cooridnates when two things collide, i guess the screen
-                     *    functoin:getTicks() // remember, using global things is not good, don't directly use the date object
-                     *    
-                     * }
-                     * 
-                     * refresh is respnseible for deciding its layer index on each refresh given where it curently is and if its desttination is occupied
-                     * actually, that is only true for movable objects, other objects could do nothing, or do something else having nothing to do with moving
-                     * it could be based on changing a property in itself to affect the ui display, such as : state = facing left, or something
-                     */
-            }
+                    }); 
+                    visited.push(obj);
+                }
+            }  
         }
-    }
-    return this;
+        this.keyDown = null;
+        return this;
+    }).bind(screen)();
+    
 }
-function addToLayerLocation(obj,layerIndex,index){
-   var layer = this.layers[layerIndex],l = layer.length;
-    if(!this.layerObjects[layerIndex]){
-        this.layerObjects[layerIndex] = [];
+function addToLayerLocation(screen,obj,layerIndex,index){
+   var layer = screen.layers[layerIndex],l = layer.length;
+    if(!screen.layerObjects[layerIndex]){
+        screen.layerObjects[layerIndex] = [];
     }
-    var objLayer = this.layerObjects[layerIndex];
+    var objLayer = screen.layerObjects[layerIndex];
     objLayer[index] = obj;
+    return this;
 }
 /**
  * Obviously want different random logic, keeping simple for now
  */
-function addToRandomLayerLocation(obj,layerIndex){
-    var layer = this.layers[layerIndex],l = layer.length;
-    if(!this.layerObjects[layerIndex]){
-        this.layerObjects[layerIndex] = [];
+function addToRandomLayerLocation(screen, obj,layerIndex){
+    var layer = screen.layers[layerIndex],l = layer.length;
+    if(!screen.layerObjects[layerIndex]){
+        screen.layerObjects[layerIndex] = [];
     }
-    var objLayer = this.layerObjects[layerIndex];
+    var objLayer = screen.layerObjects[layerIndex];
     while(l--){
         var g = objLayer[l];
         if(!g){
@@ -125,6 +127,7 @@ function addToRandomLayerLocation(obj,layerIndex){
             return;
         }
     }
+    return this;
 }
 var createScreen = function(layers,rows, columns,cellHeight,cellWidth){
     var screen = Object.create(Screen);
@@ -140,15 +143,20 @@ function createLayer(rows, columns,cellHeight,cellWidth){
     var height = cellHeight;
     var length = rows * columns;
     for(var i =1; i <= length; i ++){ 
-        var isEdge = i <= columns || i > length - columns || i % columns === 0 || (i -1) % columns === 0;   
+        var isTopEdge = i <= columns;
+        var isBottomEdge =  i > length - columns;
+        var isLeftEdge = i % columns === 0;
+        var isRightEdge =  (i -1) % columns === 0;   
          var cell = {
             id: i -1,
             x:topOffset,
             y:leftOffset,
-            width: width ,
-            height: height,
-            isEdge:isEdge,
-            isOccupied:false
+            width,
+            height,
+            isTopEdge,
+            isBottomEdge,
+            isLeftEdge,
+            isRightEdge
         }
         leftOffset += width;
         if(i !==0 && i % columns === 0){
@@ -160,6 +168,7 @@ function createLayer(rows, columns,cellHeight,cellWidth){
     return grid;
 }
 function initialize(layers,rows, columns,cellHeight,cellWidth){
+    this.numberOfLayers = layers;
     this.layers = [];
     this.layerObjects =[]; // one entry for each layer which then contains an array of each object on the layer
     while(layers --){
@@ -167,5 +176,30 @@ function initialize(layers,rows, columns,cellHeight,cellWidth){
     }
     this.columns = columns;
     this.rows = rows;
+    this.cellHeight = cellHeight;
+    this.cellWidth =cellWidth;
 }
-export default createScreen;
+function saveScreen(key,screen){
+    for(let index in screen.layerObjects){
+        let layer = screen.layerObjects[index];
+        for(let index2 in layer){
+            let obj = layer[index2];
+            for(let prop in obj){
+                if(typeof obj[prop] === 'string' || typeof obj[prop] === 'number'){
+                    obj[prop] = obj[prop];
+                }
+            }
+        }
+    }
+    var screen = JSON.stringify(screen);
+    localStorage.setItem(key,screen);
+}
+export {createScreen};
+export {refreshScreen};
+export {addToRandomLayerLocation};
+export {addToLayerLocation}
+export {notifyOfArrowDownPress}
+export {notifyOfArrowUpPress}
+export {notifyOfArrowLeftPress}
+export {notifyOfArrowRightPress}
+export {saveScreen}

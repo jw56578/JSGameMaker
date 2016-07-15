@@ -2,11 +2,8 @@
 import BaseObject from './base';
 
 var Grass = Object.create(BaseObject);
-
-Grass.getCollisionHandler = function(){
-    return {isNeutral:function(){return true;}}
-}
-
+Grass.handleCollisionIndex = 3;
+Grass.renderIndex = 3;
 var createGrass = function(){
   var grass = Object.create(Grass);
   return grass;

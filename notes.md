@@ -66,3 +66,11 @@ Collision
 think how complicated this can get, what if a monster encounters a player and the collision causes the player to die and disappear back to the beginning. and the monster needs to move 
 into the position where the player was, how do you handle this
 
+
+SAVING
+1. if you serialzie the screen object it will lose all refrences to the functions, so you can't use this
+2 you need to remove all use of isntance methods.
+3. but then how do you implement custom logic per refresh cycle, who is resposible for this?
+-- probably should just have one unique index to identify the function in an array that shoudl be used in any given scenario-
+4. json stringify is not going to work for saving if prototype linkage is used because it won't serialize these properties, this would mean that you would have to iterate and re apply every property 
+----back onto itself
