@@ -6,6 +6,7 @@
 5. make a thing composed of many "pixels" that can move
 6. when a thing hits the edge load anoter screen on the side that it went to 
 7. make a thing change its ui look depending on what direction it is going towards
+8. make a thing able to push another thing
 
 
 --Map maker

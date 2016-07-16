@@ -1,5 +1,7 @@
 var getStyle = function(hero){
-  return {backgroundColor:'red'};
+  return {
+    backgroundSize: '100%', backgroundImage: "url(link.gif)"
+  };
 }
 export {getStyle};
 

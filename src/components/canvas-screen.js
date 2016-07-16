@@ -17,8 +17,8 @@ import {createGrass} from '../services/game/objects/grass';
 import {createHero} from '../services/game/objects/hero';
 import {refresh} from '../services/game/render';
 import {getCssStyleForCell} from '../services/game/render/dom-renderer';
-
-class Screen extends Component
+import {putImageData} from '../services/game/render/canvas/32bit';
+class CanvasScreen extends Component
 {
   constructor(props, context) {
         super(props, context);
@@ -32,6 +32,7 @@ class Screen extends Component
         this.refresh = this.refresh.bind(this);
         this.load = this.load.bind(this);
         this.save = this.save.bind(this);
+        this.imageData = null;
   }
  handleMouseOver(layerIndex,cell,index,event){
     if(this.state.mouseIsDown){
@@ -83,26 +84,7 @@ class Screen extends Component
   }
   render(){
     var self = this;
-    //why does it take 500 ms to loop 140k times if i set rows and columsn to 222 x 333
-    //whatever react is doing when you make a <div> is taking a long time so this is not really feasible for large dimensions
-    var divLayers = this.state.screen.layers.map(function(l, li){
-      var layerObjects = self.state.screen.layerObjects[li];
-      var divs = l.map(function(s,i,arry){
-        var lo = layerObjects ? layerObjects[i] : null;
-        let style = getCssStyleForCell(s,lo);
-        return <div key={li.toString() + i.toString()} onMouseOver={self.handleMouseOver.bind(self.state.screen.layers[0],0,s,i)} style={style}> </div>
-      });
-      return divs;
-    });
-
-    divLayers = [].concat(...divLayers);
-    return (<div>
-    <div style={{position:'relative',top:'30px'}} onKeyDown={this.handleKeyDown}>{divLayers}</div>
-    <button onClick={this.start}>Start</button>
-    <button onClick={this.save}>Save</button>
-    <button onClick={this.load}>Load</button>
- 
-    </div>)
+    return (<canvas ref="canvas" width={1000} height={500}/>)
   }
   handleMouseDown(e){
     this.setState({mouseIsDown:true});
@@ -122,11 +104,28 @@ class Screen extends Component
     window.removeEventListener('mouseup', this.handleMouseUp);
     cancelAnimationFrame(this.raid);
   }
+  basicCanvasImageData(){
+
+  }
   refresh(){
-    var screen = refreshScreen(this.state.screen);
-    this.setState({screen:screen});
+    //the screen should be able to tell the loop if its needs to update or not. if nothing is moving on the screen then there is no point to process anything
+    if(!this.imageData){
+      this.ctx = this.refs.canvas.getContext('2d');
+      this.canvasWidth  = this.refs.canvas.width;
+      this.canvasHeight = this.refs.canvas.height;
+      this.imageData = this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight)
+      this.data = this.imageData.data;
+    }
+      putImageData(
+        {ctx : this.ctx,
+        width:this.canvasWidth,
+        height:this.canvasHeight,
+        imageData: this.imageData}
+
+      );
+     
     this.raid = requestAnimationFrame(this.refresh); 
   }
 
 }
-export default Screen;
+export default CanvasScreen;
